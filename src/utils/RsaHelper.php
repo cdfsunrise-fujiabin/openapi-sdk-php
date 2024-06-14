@@ -3,6 +3,7 @@
 namespace utils;
 
 require_once(__DIR__.'/../../index.php');
+require_once(__DIR__.'/../utils/Openssl.php');
 
 class RsaHelper
 {
@@ -15,17 +16,22 @@ class RsaHelper
 //        }
 //    }
 
-    public static function rsaEncrypt($data, $publicKey, $chunkSize = 245): string {
-        $encryptedChunks = [];
+//    public static function rsaEncrypt($data, $publicKey, $chunkSize = 245): string {
+//        $encryptedChunks = [];
+//
+//        for ($i = 0; $i < strlen($data); $i += $chunkSize) {
+//            $chunk = substr($data, $i, $chunkSize);
+//            openssl_public_encrypt($chunk, $encryptedChunk, $publicKey);
+//            $encryptedChunks[] = $encryptedChunk;
+//        }
+//
+//        $ret = implode('', $encryptedChunks);
+//        return self::base64UrlEncode($ret);
+//    }
 
-        for ($i = 0; $i < strlen($data); $i += $chunkSize) {
-            $chunk = substr($data, $i, $chunkSize);
-            openssl_public_encrypt($chunk, $encryptedChunk, $publicKey);
-            $encryptedChunks[] = $encryptedChunk;
-        }
-
-        $ret = implode('', $encryptedChunks);
-        return self::base64UrlEncode($ret);
+    public static function rsaEncrypt($data, $publicKeyStr): string{
+        $openssl = new Openssl(["publicKey"=>$publicKeyStr]);
+        return $openssl->encrypt($data, 1);
     }
 
 //    public static function rsaDecrypt($encryptedData, $privateKeyStr): string
@@ -40,16 +46,10 @@ class RsaHelper
 //        }
 //    }
 
-    public static function rsaDecrypt($encryptedData, $privateKeyStr): string
+    public static function rsaDecrypt($data, $privateKeyStr): string
     {
-        $privateKeyResource = openssl_pkey_get_private($privateKeyStr);
-        $ret = openssl_private_decrypt($encryptedData, $decrypted, $privateKeyResource);
-        if ($ret) {
-            return $decrypted;
-        } else {
-            echo "解密失败: " . openssl_error_string();
-            return "";
-        }
+        $openssl = new Openssl(["privateKey"=>$privateKeyStr]);
+        return $openssl->decrypt($data, 2);
     }
 
     static function base64UrlEncode($data): string {
