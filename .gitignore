@@ -1,5 +1,6 @@
 /.idea/
-/openapi/openapi.iml
+/src/openapi.iml
+*Test.php
 /openapi-sdk-php.iml
 /vendor/
 /package.xml
